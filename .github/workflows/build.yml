@@ -69,11 +69,6 @@ jobs:
           python -m pip install --upgrade buildozer
 
 
-      - name: Initialize Buildozer Android environment
-        run: |
-          buildozer android clean
-
-
       - name: Build debug APK
         run: |
           buildozer android debug
