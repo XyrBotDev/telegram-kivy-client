@@ -1,0 +1,129 @@
+name: Build Android APK
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+
+  workflow_dispatch:
+
+
+jobs:
+
+  build:
+
+    name: Build Debug APK
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      # ------------------------------------------------------
+      # Checkout repository
+      # ------------------------------------------------------
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+
+      # ------------------------------------------------------
+      # Python
+      # ------------------------------------------------------
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+
+      # ------------------------------------------------------
+      # Java
+      # ------------------------------------------------------
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+
+      # ------------------------------------------------------
+      # Linux dependencies
+      # ------------------------------------------------------
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+
+          sudo apt-get install -y \
+            git \
+            zip \
+            unzip \
+            autoconf \
+            automake \
+            autopoint \
+            libtool \
+            pkg-config \
+            cmake \
+            libffi-dev \
+            libssl-dev \
+            libltdl-dev \
+            gettext \
+            build-essential
+
+
+      # ------------------------------------------------------
+      # Rust
+      # ------------------------------------------------------
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+
+      # ------------------------------------------------------
+      # Install Buildozer
+      # ------------------------------------------------------
+
+      - name: Install Buildozer
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install --upgrade setuptools
+          python -m pip install --upgrade buildozer
+
+
+      # ------------------------------------------------------
+      # Cache Buildozer
+      # ------------------------------------------------------
+
+      - name: Cache Buildozer
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.buildozer
+            .buildozer
+          key: buildozer-${{ runner.os }}-${{ hashFiles('buildozer.spec') }}
+          restore-keys: |
+            buildozer-${{ runner.os }}-
+
+
+      # ------------------------------------------------------
+      # Build APK
+      # ------------------------------------------------------
+
+      - name: Build debug APK
+        run: |
+          buildozer android debug
+
+
+      # ------------------------------------------------------
+      # Upload APK
+      # ------------------------------------------------------
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: telegram-kivy-debug-apk
+          path: bin/*.apk
+          if-no-files-found: error
