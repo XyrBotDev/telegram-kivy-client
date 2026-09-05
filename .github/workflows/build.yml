@@ -20,17 +20,9 @@ jobs:
 
     steps:
 
-      # ------------------------------------------------------
-      # Checkout repository
-      # ------------------------------------------------------
-
       - name: Checkout
         uses: actions/checkout@v4
 
-
-      # ------------------------------------------------------
-      # Python
-      # ------------------------------------------------------
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -38,20 +30,12 @@ jobs:
           python-version: "3.12"
 
 
-      # ------------------------------------------------------
-      # Java
-      # ------------------------------------------------------
-
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "17"
 
-
-      # ------------------------------------------------------
-      # Linux dependencies
-      # ------------------------------------------------------
 
       - name: Install system dependencies
         run: |
@@ -74,17 +58,9 @@ jobs:
             build-essential
 
 
-      # ------------------------------------------------------
-      # Rust
-      # ------------------------------------------------------
-
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
 
-
-      # ------------------------------------------------------
-      # Install Buildozer
-      # ------------------------------------------------------
 
       - name: Install Buildozer
         run: |
@@ -93,33 +69,11 @@ jobs:
           python -m pip install --upgrade buildozer
 
 
-      # ------------------------------------------------------
-      # Cache Buildozer
-      # ------------------------------------------------------
-
-      - name: Cache Buildozer
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.buildozer
-            .buildozer
-          key: buildozer-${{ runner.os }}-${{ hashFiles('buildozer.spec') }}
-          restore-keys: |
-            buildozer-${{ runner.os }}-
-
-
-      # ------------------------------------------------------
-      # Build APK
-      # ------------------------------------------------------
-
       - name: Build debug APK
         run: |
+          buildozer android clean
           buildozer android debug
 
-
-      # ------------------------------------------------------
-      # Upload APK
-      # ------------------------------------------------------
 
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
