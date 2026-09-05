@@ -69,10 +69,16 @@ jobs:
           python -m pip install --upgrade buildozer
 
 
-      - name: Build debug APK
+      - name: Initialize Buildozer Android environment
         run: |
           buildozer android clean
+
+
+      - name: Build debug APK
+        run: |
           buildozer android debug
+        env:
+          P4A_RELEASE: "2024.07.29"
 
 
       - name: Upload debug APK
